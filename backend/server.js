@@ -6,7 +6,25 @@ const server = http.createServer((req, res) => {
 
     if(req.method === 'POST' && req.url === '/api/createBlog') {
         console.log('Req to create a blog POST')
-    }
+
+        let body = '';
+
+        req.on('data', (chunk) => {
+            body += chunk.toString();
+        })
+
+        req.on('end', () => {
+
+            let blogData = JSON.parse(body);
+            console.log('Blog data received:', blogData);
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify({message: "POST request received and processed."}));
+        })
+    } 
+    // else {
+    //     res.writeHead(404, {'Content-Type': 'text/plain'});
+    //     res.end('404 NOT FOUND');
+    // }
 
 
     if(req.method === 'GET' && req.url === '/') {
