@@ -2,7 +2,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const dbConfig = require('./database/db-config.js');
+const findUserByUsername  = require("./database/db-queries");
+
 
 
 
@@ -19,6 +20,7 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
 
             let blogData = JSON.parse(body);
+
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({message: "POST request received and processed."}));
         })
@@ -31,8 +33,24 @@ const server = http.createServer((req, res) => {
             body += chunk.toString();
         })
 
-        req.on('end', () => { 
+        req.on('end', async () => { 
             let loginData = JSON.parse(body);
+
+            const databaseResult = await findUserByUsername(loginData.username);
+
+            if(databaseResult !== undefined) { 
+                if(databaseResult.password === loginData.password) {
+                    console.log("Login successful for user: ", loginData.username);
+                } else {
+                    console.log("Login failed for user: ", loginData.username, " - Incorrect password.");
+                }
+            } else {
+                console.log("Login failed - User not found: ", loginData.username);
+                res.writeHead(401);
+                res.end();
+                return;
+            }
+            res.cookie('sessionId');
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({message: "Login POST request received and processed."}));
         });

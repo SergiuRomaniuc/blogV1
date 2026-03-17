@@ -37,7 +37,7 @@ async function loginUser(event) {
     });
 
     const result = await login.json();
-    console.log(result);
+    // console.log(result);
 
 }
 
