@@ -1,4 +1,4 @@
-import { inputValue, addBlogButton, inputPassword, loginButton } from './dom.js';
+import { inputValue, addBlogButton, inputUsername, inputPassword, loginButton } from './dom.js';
 
 async function createBlogPost(event) {
 
@@ -14,12 +14,19 @@ async function createBlogPost(event) {
     console.log(result);
 }
 
-addBlogButton.addEventListener('click', createBlogPost);
+function initCreateBlog() {
+    if(!addBlogButton) return;
+    addBlogButton.addEventListener('click', createBlogPost)
+}
+
+initCreateBlog();
 
 
 async function loginUser(event) {
-    event.preventDefault();
 
+    event.preventDefault();
+    
+    console.log('Login button clicked');
     const login = await fetch('/api/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -34,6 +41,9 @@ async function loginUser(event) {
 
 }
 
-console.log(loginButton);
+function initLoginUser() {
+    if(!loginButton) return;
+    loginButton.addEventListener('click', loginUser);
+}
 
-loginButton.addEventListener('click', loginUser);
+initLoginUser();

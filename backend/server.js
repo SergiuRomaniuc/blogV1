@@ -9,7 +9,6 @@ const dbConfig = require('./database/db-config.js');
 const server = http.createServer((req, res) => {
 
     if(req.method === 'POST' && req.url === '/api/createBlog') {
-        console.log('Req to create a blog POST')
 
         let body = '';
 
@@ -20,21 +19,20 @@ const server = http.createServer((req, res) => {
         req.on('end', () => {
 
             let blogData = JSON.parse(body);
-            console.log('Blog data received:', blogData);
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({message: "POST request received and processed."}));
         })
-    } else if(req.method === 'POST' && req.url === '/api/login') {
+    } 
+    if(req.method === 'POST' && req.url === '/api/login') {
 
         let body = '';
-
+        console.log('Req to login POST');
         req.on('data', (chunk) => {
             body += chunk.toString();
         })
 
         req.on('end', () => { 
             let loginData = JSON.parse(body);
-            console.log('Login data received:', loginData);
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({message: "Login POST request received and processed."}));
         });
@@ -58,7 +56,6 @@ const server = http.createServer((req, res) => {
             }
         })
 
-        console.log('Req to load the page');
 
     }
 
@@ -75,13 +72,11 @@ const server = http.createServer((req, res) => {
             }
         })
 
-        console.log('Req to load the page');
 
     }
 
     if(req.method === 'GET' && path.extname(req.url) === '.js') {
         res.writeHead(200, {'Content-Type': 'text/javascript'});
-        console.log(req.url);
         fs.readFile(path.join(__dirname, '../frontend', req.url), (err, data) => {
             if(err) {
                 console.error(err);
@@ -92,8 +87,7 @@ const server = http.createServer((req, res) => {
             }
         })
 
-        console.log('Req to load the page');
-
+    
     }
 
 });
