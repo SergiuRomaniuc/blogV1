@@ -2,7 +2,7 @@
 const mysql = require('mysql2/promise');
 const dbConfig = require('./db-Config.js');
 
-module.exports = async function findUserByUsername(username) {
+async function findUserByUsername(username) {
     let connection;
     try {
         connection = await mysql.createConnection(dbConfig);
@@ -16,4 +16,23 @@ module.exports = async function findUserByUsername(username) {
     } finally {
         if(connection) connection.end();
     }
+}
+
+async function createSession(sessionId, userId) {
+    let connection;
+    try {
+        connection = await mysql.createConnection(dbConfig);
+        const sql = 'insert into session (sessionId, idusersession) values (?, ?)';
+        await connection.query(sql, [sessionId, userId]);
+    } catch (error) {
+        console.log("Database error: ", error);
+        throw error;
+    } finally {
+        if(connection) connection.end();
+    }
+}
+
+module.exports = {
+    findUserByUsername,
+    createSession
 }

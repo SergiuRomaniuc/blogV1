@@ -1,9 +1,9 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const  uuidv4 = require('uuid');
 
-const findUserByUsername  = require("./database/db-queries");
-
+const { findUserByUsername, createSession } = require('./database/db-queries.js');
 
 
 
@@ -37,7 +37,7 @@ const server = http.createServer((req, res) => {
             let loginData = JSON.parse(body);
 
             const databaseResult = await findUserByUsername(loginData.username);
-
+            
             if(databaseResult !== undefined) { 
                 if(databaseResult.password === loginData.password) {
                     console.log("Login successful for user: ", loginData.username);
@@ -50,8 +50,20 @@ const server = http.createServer((req, res) => {
                 res.end();
                 return;
             }
-            res.cookie('sessionId');
-            res.writeHead(200, {'Content-Type': 'application/json'});
+
+
+            let sessionId = uuidv4.v4(); //generating a unique session ID
+            
+
+            await createSession(sessionId, databaseResult.iduser); //storing the session ID in the db
+      
+            // setting the session ID in a coookie for the browser to store
+            res.writeHead(200, {
+                'Content-Type': 'application/json',
+                'Set-Cookie': [
+                    `sessionId=${sessionId}; HttpOnly; Secure; SameSite=Strict; Max-Age=${60*60*100}`
+                ]
+            });
             res.end(JSON.stringify({message: "Login POST request received and processed."}));
         });
     }
