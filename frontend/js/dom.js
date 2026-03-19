@@ -5,3 +5,4 @@ export const inputUsername = document.getElementById('username');
 export const inputPassword = document.getElementById('password');
 
 export const loginButton = document.getElementById('login-button');
+export const errorMessage = document.getElementById('error-message');

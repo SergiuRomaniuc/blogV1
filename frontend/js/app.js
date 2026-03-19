@@ -1,4 +1,4 @@
-import { inputValue, addBlogButton, inputUsername, inputPassword, loginButton } from './dom.js';
+import * as dom from './dom.js';
 
 async function createBlogPost(event) {
 
@@ -7,7 +7,7 @@ async function createBlogPost(event) {
     const response = await fetch('/api/createBlog', {
         method: 'POST', 
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({blogText: inputValue.value})
+        body: JSON.stringify({blogText: dom.inputValue.value})
     });
     // console.log(response);
     const result = await response.json();
@@ -15,13 +15,19 @@ async function createBlogPost(event) {
 }
 
 function initCreateBlog() {
-    if(!addBlogButton) return;
-    addBlogButton.addEventListener('click', createBlogPost)
+    if(!dom.addBlogButton) return;
+    dom.addBlogButton.addEventListener('click', createBlogPost)
 }
 
 initCreateBlog();
 
+function userNotFound() {
+    dom.errorMessage.textContent = "User not found.";
+}
 
+function userFound() {
+    dom.errorMessage.textContent = "Login successful.";
+}
 async function loginUser(event) {
 
     event.preventDefault();
@@ -31,19 +37,27 @@ async function loginUser(event) {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-            username: inputUsername.value,
-            password: inputPassword.value
+            username: dom.inputUsername.value,
+            password: dom.inputPassword.value
         })
     });
 
-    const result = await login.json();
+    // const result = await login.json();
+    console.log('Login response: ', login);
+    if(login.status === 401) {
+        userNotFound();
+        return;
+    } else if(login.status === 200) {
+        userFound();
+        return;
+    }
     // console.log(result);
 
 }
 
 function initLoginUser() {
-    if(!loginButton) return;
-    loginButton.addEventListener('click', loginUser);
+    if(!dom.loginButton) return;
+    dom.loginButton.addEventListener('click', loginUser);
 }
 
 initLoginUser();
