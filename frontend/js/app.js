@@ -32,7 +32,7 @@ async function loginUser(event) {
 
     event.preventDefault();
     
-    console.log('Login button clicked');
+    
     const login = await fetch('/api/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -61,3 +61,24 @@ function initLoginUser() {
 }
 
 initLoginUser();
+
+async function registerUser(event) {
+    event.preventDefault();
+    
+    const register = await fetch('/api/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            username: dom.registerUsername.value,
+            password: dom.registerPassword.value
+        })
+    });
+}
+
+function initRegisterUser() {
+    if(!dom.registerButton) return;
+    dom.registerButton.addEventListener('click', registerUser);
+}
+
+initRegisterUser();
+

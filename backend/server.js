@@ -24,7 +24,8 @@ const server = http.createServer((req, res) => {
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({message: "POST request received and processed."}));
         })
-    } 
+    }
+
     if(req.method === 'POST' && req.url === '/api/login') {
 
         let body = '';
@@ -67,11 +68,24 @@ const server = http.createServer((req, res) => {
             res.end(JSON.stringify({message: "Login POST request received and processed."}));
         });
     }
-    // else {
-    //     res.writeHead(404, {'Content-Type': 'text/plain'});
-    //     res.end('404 NOT FOUND');
-    // }
 
+    if(req.method === 'POST' && req.url === '/api/register') {
+        let body = '';
+
+        console.log('Req to register POST');
+
+        req.on('data', (chunk) => {
+            body += chunk.toString();
+        })
+        req.on('end', () => {
+            let registerData = JSON.parse(body);
+            res.writeHead(200);
+            res.end();
+        })
+    }
+
+
+    // -----------GET requests-----------
 
     if(req.method === 'GET' && req.url === '/') {
         res.writeHead(200, {'Content-Type': 'text/html'});
@@ -89,7 +103,7 @@ const server = http.createServer((req, res) => {
 
     }
 
-        if(req.method === 'GET' && req.url === '/html/login.html') {
+    if(req.method === 'GET' && req.url === '/html/login.html') {
         res.writeHead(200, {'Content-Type': 'text/html'});
 
         fs.readFile(path.join(__dirname, '../frontend/html/login.html'), (err, data) => {
@@ -101,8 +115,20 @@ const server = http.createServer((req, res) => {
                 res.end(data);
             }
         })
+    }
 
+    if(req.method === 'GET' && req.url === '/html/signin.html') {
+        res.writeHead(200, {'Content-Type': 'text/html'});
 
+        fs.readFile(path.join(__dirname, '../frontend/html/signin.html'), (err, data) => {
+            if(err) {
+                console.error(err);
+                res.writeHead(404, {'Content-Type': 'text/plain'});
+                res.end('404 NOT FOUND');
+            } else {
+                res.end(data);
+            }
+        })
     }
 
     if(req.method === 'GET' && path.extname(req.url) === '.js') {
