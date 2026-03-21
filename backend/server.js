@@ -77,8 +77,15 @@ const server = http.createServer((req, res) => {
         req.on('data', (chunk) => {
             body += chunk.toString();
         })
-        req.on('end', () => {
+        req.on('end', async () => {
             let registerData = JSON.parse(body);
+
+            const databaseResult = await findUserByUsername(registerData.username);
+            if(databaseResult !== undefined) {
+                res.writeHead(409, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify({message: "Username already exists."}));
+                return;
+            }
             res.writeHead(200);
             res.end();
         })
