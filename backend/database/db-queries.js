@@ -32,7 +32,22 @@ async function createSession(sessionId, userId) {
     }
 }
 
+async function createUser(username, password) {
+    let connection;
+    try {
+        connection = await mysql.createConnection(dbConfig);
+        const sql = 'insert into user (username, password) values (?, ?)';
+        await connection.query(sql, [username, password]);
+    } catch (error) {
+        console.log("Database error: ", error);
+        throw error;
+    } finally {
+        if(connection) connection.end();
+    }
+}
+
 module.exports = {
     findUserByUsername,
-    createSession
+    createSession, 
+    createUser
 }

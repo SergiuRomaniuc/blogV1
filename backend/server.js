@@ -2,9 +2,12 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const  uuidv4 = require('uuid');
+const bcrypt = require('bcrypt');
 
-const { findUserByUsername, createSession } = require('./database/db-queries.js');
 
+const { findUserByUsername, createSession, createUser } = require('./database/db-queries.js');
+
+const saltRounds = 10;
 
 
 const server = http.createServer((req, res) => {
@@ -81,10 +84,24 @@ const server = http.createServer((req, res) => {
             let registerData = JSON.parse(body);
 
             const databaseResult = await findUserByUsername(registerData.username);
+            //checking if the username already exists in the database
             if(databaseResult !== undefined) {
+                console.log("Registration failed - Username already exists: ", registerData.username);  
                 res.writeHead(409, {'Content-Type': 'application/json'});
                 res.end(JSON.stringify({message: "Username already exists."}));
                 return;
+            } else {
+                //hashing the password and sotring it in the database
+                bcrypt.hash(registerData.password, saltRounds, async (err, hash) => {
+                    if(err) {
+                        console.error("Error hashing password: ", err);
+                        res.writeHead(500);
+                        res.end();
+                        return;
+                    }
+                    await createUser(registerData.username, hash);
+
+                })
             }
             res.writeHead(200);
             res.end();
