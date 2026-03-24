@@ -64,7 +64,7 @@ initLoginUser();
 
 async function registerUser(event) {
     event.preventDefault();
-    
+
     const register = await fetch('/api/register', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -73,6 +73,12 @@ async function registerUser(event) {
             password: dom.registerPassword.value
         })
     });
+
+    register.json().then(res => {
+        if(res.success) {
+            window.location.href = '/dashboard';
+        }
+    })
 }
 
 function initRegisterUser() {
