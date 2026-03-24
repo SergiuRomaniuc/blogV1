@@ -43,14 +43,21 @@ async function loginUser(event) {
     });
 
     // const result = await login.json();
-    console.log('Login response: ', login);
-    if(login.status === 401) {
-        userNotFound();
-        return;
-    } else if(login.status === 200) {
-        userFound();
-        return;
-    }
+    // console.log('Login response: ', login);
+    // if(login.status === 401) {
+    //     userNotFound();
+    //     return;
+    // } else if(login.status === 200) {
+    //     userFound();
+    //     return;
+    // }
+
+    login.json().then(res => {
+        if(res.success) {
+            window.location.href = '/dashboard';
+        }
+    })
+
     // console.log(result);
 
 }

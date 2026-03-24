@@ -41,13 +41,26 @@ const server = http.createServer((req, res) => {
             let loginData = JSON.parse(body);
 
             const databaseResult = await findUserByUsername(loginData.username);
+
+            
             
             if(databaseResult !== undefined) { 
-                if(databaseResult.password === loginData.password) {
-                    console.log("Login successful for user: ", loginData.username);
-                } else {
-                    console.log("Login failed for user: ", loginData.username, " - Incorrect password.");
-                }
+                bcrypt.compare(loginData.password, databaseResult.password, (err, result) => {
+                    if(err) {
+                        console.error("Error comparing passwords: ", err);
+                        res.writeHead(500);
+                        res.end();
+                        return;
+                    }
+                    if(result) {
+                        console.log("Login successful for user: ", loginData.username);
+                        res.writeHead(200, {'Content-Type': 'application/json'});
+                        res.end(JSON.stringify({success: true}));
+                        return;
+                    } else {
+                        console.log("Login failed for user: ", loginData.username, " - Incorrect password.");
+                    }
+                })
             } else {
                 console.log("Login failed - User not found: ", loginData.username);
                 res.writeHead(401);
@@ -59,16 +72,16 @@ const server = http.createServer((req, res) => {
             let sessionId = uuidv4.v4(); //generating a unique session ID
             
 
-            await createSession(sessionId, databaseResult.iduser); //storing the session ID in the db
+            // await createSession(sessionId, databaseResult.iduser); //storing the session ID in the db
       
             // setting the session ID in a coookie for the browser to store
-            res.writeHead(200, {
-                'Content-Type': 'application/json',
-                'Set-Cookie': [
-                    `sessionId=${sessionId}; HttpOnly; Secure; SameSite=Strict; Max-Age=${60*60*100}`
-                ]
-            });
-            res.end(JSON.stringify({message: "Login POST request received and processed."}));
+            // res.writeHead(200, {
+            //     'Content-Type': 'application/json',
+            //     'Set-Cookie': [
+            //         `sessionId=${sessionId}; HttpOnly; Secure; SameSite=Strict; Max-Age=${60*60*100}`
+            //     ]
+            // });
+            // res.end(JSON.stringify({message: "Login POST request received and processed."}));
         });
     }
 
