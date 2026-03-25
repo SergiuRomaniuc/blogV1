@@ -1,5 +1,9 @@
 import * as dom from './dom.js';
 
+
+// -------------Create blog post-------------
+
+
 async function createBlogPost(event) {
 
     event.preventDefault();
@@ -9,7 +13,7 @@ async function createBlogPost(event) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({blogText: dom.inputValue.value})
     });
-    // console.log(response);
+
     const result = await response.json();
     console.log(result);
 }
@@ -21,17 +25,18 @@ function initCreateBlog() {
 
 initCreateBlog();
 
-function userNotFound() {
-    dom.errorMessage.textContent = "User not found.";
-}
 
-function userFound() {
-    dom.errorMessage.textContent = "Login successful.";
-}
+
+
+
+
+
+
+
+// -------------Login user-------------
+
 async function loginUser(event) {
-
     event.preventDefault();
-    
     
     const login = await fetch('/api/login', {
         method: 'POST',
@@ -42,24 +47,14 @@ async function loginUser(event) {
         })
     });
 
-    // const result = await login.json();
-    // console.log('Login response: ', login);
-    // if(login.status === 401) {
-    //     userNotFound();
-    //     return;
-    // } else if(login.status === 200) {
-    //     userFound();
-    //     return;
-    // }
 
     login.json().then(res => {
         if(res.success) {
             window.location.href = '/dashboard';
+        } else if(login.status === 401 || login.status === 500) {
+            dom.errorMessage.textContent = res.message;
         }
-    })
-
-    // console.log(result);
-
+    });
 }
 
 function initLoginUser() {
@@ -68,6 +63,15 @@ function initLoginUser() {
 }
 
 initLoginUser();
+
+
+
+
+
+
+
+
+// -------------Register user-------------
 
 async function registerUser(event) {
     event.preventDefault();
@@ -81,16 +85,19 @@ async function registerUser(event) {
         })
     });
 
+
     register.json().then(res => {
         if(res.success) {
             window.location.href = '/dashboard';
-        }
+        } else if(register.status === 409 || register.status === 500) {
+            dom.errorMessage.textContent = res.message;
+        } 
     })
 }
 
 function initRegisterUser() {
     if(!dom.registerButton) return;
-    dom.registerButton.addEventListener('click', registerUser);
+    dom.registerButton.addEventListener('click', registerUser); //this function prevents error with selectors when we are on another page
 }
 
 initRegisterUser();

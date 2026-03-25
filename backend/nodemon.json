@@ -1,0 +1,4 @@
+{
+    "watch": ["../frontend", "../backend"],
+    "ext": "js,html,css"
+}
