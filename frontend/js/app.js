@@ -22,7 +22,7 @@ function initCreateBlog() {
     if(!dom.addBlogButton) return;
     dom.addBlogButton.addEventListener('click', createBlogPost)
 }
-
+ 
 initCreateBlog();
 
 
