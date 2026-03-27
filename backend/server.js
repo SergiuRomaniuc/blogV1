@@ -1,16 +1,15 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const  uuidv4 = require('uuid');
 const bcrypt = require('bcrypt');
 
 
-const { findUserByUsername, createSession, createUser } = require('./database/db-queries.js');
-
+const { findUserByUsername, createUser, findSessionIdByUserId } = require('./database/db-queries.js');
+const { handleSessionCreation } = require('./session_management_utilities/session-Creation.js');
 const { handleFileRead } = require('./callback_functions/callback_for_readfile.js');
 
-const saltRounds = 10;
 
+const saltRounds = 10;
 
 const server = http.createServer((req, res) => {
 
@@ -65,10 +64,17 @@ const server = http.createServer((req, res) => {
                 const match = await bcrypt.compare(loginData.password, user.password); //comparing the passwrod from the user and from the backend
                 
                 if(match) {
+                    //TODO: add session management here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    
+                    await handleSessionCreation(user.iduser); //creating a session in the db
+                    
+                    //send sessionID to the frontend to be stored in a cookie
+                    const sessionId = await findSessionIdByUserId(user.iduser);
+                    console.log(sessionId);
+                    res.setHeader('Set-Cookie', `sessionId=${sessionId}`);
                     res.writeHead(200, {'Content-Type': 'application/json'}); //case when user exists and the password is correct
                     res.end(JSON.stringify({success: true, message: "Login successful."}));
                     return;
-//TODO: add session management here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 } else {
                     res.writeHead(401, {'Content-Type': 'application/json'}); //case when the password is incorrect
                     res.end(JSON.stringify({success: false, message: "Incorrect password."}));
@@ -199,6 +205,7 @@ const server = http.createServer((req, res) => {
         fs.readFile(path.join(__dirname, '../frontend/html/signin.html'), handleFileRead(res));
     }
 
+    
 
 
 //-------------serving js files-------------
