@@ -40,6 +40,7 @@ async function loginUser(event) {
     
     const login = await fetch('/api/login', {
         method: 'POST',
+        credentials: 'include', //include cookies in the request
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
             username: dom.inputUsername.value,

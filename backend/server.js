@@ -71,7 +71,7 @@ const server = http.createServer((req, res) => {
                     //send sessionID to the frontend to be stored in a cookie
                     const sessionId = await findSessionIdByUserId(user.iduser);
                     console.log(sessionId);
-                    res.setHeader('Set-Cookie', `sessionId=${sessionId}`);
+                    res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/; HttpOnly; SameSite=Strict;`);
                     res.writeHead(200, {'Content-Type': 'application/json'}); //case when user exists and the password is correct
                     res.end(JSON.stringify({success: true, message: "Login successful."}));
                     return;
