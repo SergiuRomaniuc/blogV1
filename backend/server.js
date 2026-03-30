@@ -168,7 +168,7 @@ const server = http.createServer((req, res) => {
 //-------------serving login page-------------   
     if(req.method === 'GET' && req.url === '/') {
         res.writeHead(200, {'Content-Type': 'text/html'});
-
+        console.log(req.headers.cookie);
         fs.readFile(path.join(__dirname, '../frontend/html/login.html'), handleFileRead(res));
 
     }
