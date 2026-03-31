@@ -70,7 +70,6 @@ const server = http.createServer(async (req, res) => {
                     
                     //send sessionID to the frontend to be stored in a cookie
                     const sessionId = await findSessionIdByUserId(user.iduser);
-                    console.log(sessionId);
                     res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/; HttpOnly; SameSite=Strict;`);
                     res.writeHead(200, {'Content-Type': 'application/json'}); //case when user exists and the password is correct
                     res.end(JSON.stringify({success: true, message: "Login successful."}));
@@ -170,9 +169,11 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(200, {'Content-Type': 'text/html'});
 
         const browserSessionId = req.headers.cookie ? req.headers.cookie.split('=')[1] : null; 
-
-        console.log( await findUserBySessionId("sfdsfdsdfsdfdsfsdfsd"));
-        fs.readFile(path.join(__dirname, '../frontend/html/login.html'), handleFileRead(res));
+        if(browserSessionId == null) {
+            fs.readFile(path.join(__dirname, '../frontend/html/login.html'), handleFileRead(res));
+        } else {
+            fs.readFile(path.join(__dirname, '../frontend/index.html'), handleFileRead(res));
+        }
 
     }
 

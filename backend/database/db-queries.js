@@ -20,12 +20,15 @@ async function findUserByUsername(username) {
 
 async function findUserBySessionId(sessionId) {
     let connection; //finding the user by the session ID stored in the cookie
+    
+    if(!sessionId) return null; //if there is no session ID, return null
+
     try {
         connection = await mysql.createConnection(dbConfig);
         const sql = 'select iduser, username from user join session u on iduser=u.idusersession where u.sessionId = ?';
         const result = await connection.query(sql, sessionId);
 
-        return result[0][0];
+        return result[0][0] == undefined ? null : result[0][0];//for the case when the session ID is not in the db
 
     } catch (error) {
         console.error("Database error: ", error);
