@@ -18,6 +18,23 @@ async function findUserByUsername(username) {
     }
 }
 
+async function findUserBySessionId(sessionId) {
+    let connection; //finding the user by the session ID stored in the cookie
+    try {
+        connection = await mysql.createConnection(dbConfig);
+        const sql = 'select iduser, username from user join session u on iduser=u.idusersession where u.sessionId = ?';
+        const result = await connection.query(sql, sessionId);
+
+        return result[0][0];
+
+    } catch (error) {
+        console.error("Database error: ", error);
+        throw error;
+    } finally {
+        if(connection) connection.end();
+    }
+}
+
 async function findSessionIdByUserId(userId) {
     let connection; //finding the session ID for a specific user ID
     try {
@@ -86,5 +103,6 @@ module.exports = {
     findUserByUsername,
     createSession, 
     createUser,
-    findSessionIdByUserId
+    findSessionIdByUserId,
+    findUserBySessionId
 }

@@ -4,14 +4,14 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 
 
-const { findUserByUsername, createUser, findSessionIdByUserId } = require('./database/db-queries.js');
+const { findUserByUsername, createUser, findSessionIdByUserId, findUserBySessionId } = require('./database/db-queries.js');
 const { handleSessionCreation } = require('./session_management_utilities/session-Creation.js');
 const { handleFileRead } = require('./callback_functions/callback_for_readfile.js');
 
 
 const saltRounds = 10;
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
 
    
    
@@ -168,7 +168,10 @@ const server = http.createServer((req, res) => {
 //-------------serving login page-------------   
     if(req.method === 'GET' && req.url === '/') {
         res.writeHead(200, {'Content-Type': 'text/html'});
-        console.log(req.headers.cookie);
+
+        const browserSessionId = req.headers.cookie ? req.headers.cookie.split('=')[1] : null; 
+
+        console.log( await findUserBySessionId("sfdsfdsdfsdfdsfsdfsd"));
         fs.readFile(path.join(__dirname, '../frontend/html/login.html'), handleFileRead(res));
 
     }
