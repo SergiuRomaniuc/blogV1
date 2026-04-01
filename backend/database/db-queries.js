@@ -107,5 +107,6 @@ module.exports = {
     createSession, 
     createUser,
     findSessionIdByUserId,
-    findUserBySessionId
+    findUserBySessionId,
+    deleteSession
 }

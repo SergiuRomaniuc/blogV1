@@ -109,6 +109,22 @@ initRegisterUser();
 async function logoutUser(event) {
     event.preventDefault();
 
-    const response = await fetch('/api/loout', )
+    const response = await fetch('/api/logout', {
+        method: 'POST'
+    });
+
+    response.json().then(res => {
+        if(res.success) {
+            window.location.href = '/login';
+        } else if(response.status === 500) {
+            alert(res.message);
+        }
+    })
 }
 
+function initLogoutUser() {
+    if(!dom.logoutButton) return;
+    dom.logoutButton.addEventListener('click', logoutUser);
+}
+
+initLogoutUser();

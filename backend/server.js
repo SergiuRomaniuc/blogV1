@@ -4,7 +4,7 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 
 
-const { findUserByUsername, createUser, findSessionIdByUserId, findUserBySessionId } = require('./database/db-queries.js');
+const { findUserByUsername, createUser, findSessionIdByUserId, findUserBySessionId, deleteSession } = require('./database/db-queries.js');
 const { handleSessionCreation } = require('./session_management_utilities/session-Creation.js');
 const { handleFileRead } = require('./callback_functions/callback_for_readfile.js');
 const { getSessionIdFromCookie } = require('./modules/cookie_parser.js');
@@ -154,7 +154,32 @@ const server = http.createServer(async (req, res) => {
 
 
 
+//---------------------Logout endpoint--------------------
+    if(req.method === 'POST' && req.url === '/api/logout') {
+        
+        let body = '';
+        req.on('data', (chunk) => {
+            body += chunk.toString();
+        })
 
+        req.on('end', async () => {
+            try {
+                const browserSessionId = getSessionIdFromCookie(req);
+                const user = await findUserBySessionId(browserSessionId); //getting user data by sessionID
+
+                await deleteSession(user.iduser); //deleting the session from the db 
+
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify({success: true, message: "Logout successful."}));
+            } catch (error) {
+                console.error("Error processing logout request: ", error);
+                res.writeHead(500, {'Content-Type': 'application/json'}); //handling any unexpected errors
+                res.end(JSON.stringify({success: false, message: "Internal server error."}));
+                return;
+            }
+        })
+
+    }
 
 
 
@@ -170,10 +195,13 @@ const server = http.createServer(async (req, res) => {
     if(req.method === 'GET' && (req.url === '/' || req.url === '/login' || req.url === '/dashboard')) {
         res.writeHead(200, {'Content-Type': 'text/html'});
 
+        let filePath = '../frontend/index.html';
+
         const browserSessionId = getSessionIdFromCookie(req); 
 
-        const filePath = browserSessionId ? '../frontend/index.html' : '../frontend/html/login.html'
-
+        if(await findUserBySessionId(browserSessionId) == null) {
+            filePath = '../frontend/html/login.html';
+        }
         fs.readFile(path.join(__dirname, filePath), handleFileRead(res));
 
     }
@@ -211,10 +239,13 @@ const server = http.createServer(async (req, res) => {
     if(req.method === 'GET' && req.url === '/signin') {
         res.writeHead(200, {'Content-Type': 'text/html'});
 
+        let filePath = '../frontend/index.html';
+
         const browserSessionId = getSessionIdFromCookie(req); 
 
-        const filePath = browserSessionId ? '../frontend/index.html' : '../frontend/html/signin.html'
-
+        if(await findUserBySessionId(browserSessionId) == null) {
+            filePath = '../frontend/html/signin.html';
+        }
         fs.readFile(path.join(__dirname, filePath), handleFileRead(res));
     }
 

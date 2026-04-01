@@ -3,7 +3,7 @@
 
 export const inputValue = document.getElementById('blog-input');
 export const addBlogButton = document.getElementById('button-add-blog');
-
+export const logoutButton = document.getElementById('logout');
 
 // -------------Log in page-------------
 
