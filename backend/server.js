@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const { findUserByUsername, createUser, findSessionIdByUserId, findUserBySessionId } = require('./database/db-queries.js');
 const { handleSessionCreation } = require('./session_management_utilities/session-Creation.js');
 const { handleFileRead } = require('./callback_functions/callback_for_readfile.js');
-
+const { getSessionIdFromCookie } = require('./modules/cookie_parser.js');
 
 const saltRounds = 10;
 
@@ -64,16 +64,18 @@ const server = http.createServer(async (req, res) => {
                 const match = await bcrypt.compare(loginData.password, user.password); //comparing the passwrod from the user and from the backend
                 
                 if(match) {
-                    //TODO: add session management here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     
                     await handleSessionCreation(user.iduser); //creating a session in the db
                     
-                    //send sessionID to the frontend to be stored in a cookie
-                    const sessionId = await findSessionIdByUserId(user.iduser);
+                    
+                    const sessionId = await findSessionIdByUserId(user.iduser); //send sessionID to the frontend to be stored in a cookie
                     res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/; HttpOnly; SameSite=Strict;`);
+
+
                     res.writeHead(200, {'Content-Type': 'application/json'}); //case when user exists and the password is correct
                     res.end(JSON.stringify({success: true, message: "Login successful."}));
                     return;
+
                 } else {
                     res.writeHead(401, {'Content-Type': 'application/json'}); //case when the password is incorrect
                     res.end(JSON.stringify({success: false, message: "Incorrect password."}));
@@ -87,20 +89,6 @@ const server = http.createServer(async (req, res) => {
 
             }
 
-
-            
-            
-            // let sessionId = uuidv4.v4(); //generating a unique session ID
-            // await createSession(sessionId, databaseResult.iduser); //storing the session ID in the db
-      
-            // setting the session ID in a coookie for the browser to store
-            // res.writeHead(200, {
-            //     'Content-Type': 'application/json',
-            //     'Set-Cookie': [
-            //         `sessionId=${sessionId}; HttpOnly; Secure; SameSite=Strict; Max-Age=${60*60*100}`
-            //     ]
-            // });
-            // res.end(JSON.stringify({message: "Login POST request received and processed."}));
         });
     }
 
@@ -136,6 +124,13 @@ const server = http.createServer(async (req, res) => {
 
 //TODO: add session management for the register endpoint!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+                const user = await findUserByUsername(registerData.username); //finding the user {id, username, password} by the username provided in the frontend form
+                
+                await handleSessionCreation(user.iduser); // creating a session in the db for the new user
+
+                const sessionId = await findSessionIdByUserId(user.iduser); //send sessionID to the frontend to be stored in a cookie
+                res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/; HttpOnly; SameSite=Strict;`);
+
                 res.writeHead(200, {'Content-Type': 'application/json'}); //case when the user is successfully registered
                 res.end(JSON.stringify({success: true, message: "User registered successfully."}));
                 return;
@@ -164,16 +159,15 @@ const server = http.createServer(async (req, res) => {
     // -----------GET requests-----------
 
 
-//-------------serving login page-------------   
-    if(req.method === 'GET' && req.url === '/') {
+//-------------serving login, dashboard page-------------   
+    if(req.method === 'GET' && (req.url === '/' || req.url === '/login' || req.url === '/dashboard')) {
         res.writeHead(200, {'Content-Type': 'text/html'});
 
-        const browserSessionId = req.headers.cookie ? req.headers.cookie.split('=')[1] : null; 
-        if(browserSessionId == null) {
-            fs.readFile(path.join(__dirname, '../frontend/html/login.html'), handleFileRead(res));
-        } else {
-            fs.readFile(path.join(__dirname, '../frontend/index.html'), handleFileRead(res));
-        }
+        const browserSessionId = getSessionIdFromCookie(req); 
+
+        const filePath = browserSessionId ? '../frontend/index.html' : '../frontend/html/login.html'
+
+        fs.readFile(path.join(__dirname, filePath), handleFileRead(res));
 
     }
 
@@ -181,23 +175,27 @@ const server = http.createServer(async (req, res) => {
 
  
 //-------------serving dashboard page-------------  
-    if(req.method === 'GET' && req.url === '/dashboard') {
-        res.writeHead(200, {'Content-Type': 'text/html'});
+    // if(req.method === 'GET' && req.url === '/dashboard') {
+    //     res.writeHead(200, {'Content-Type': 'text/html'});
 
-        fs.readFile(path.join(__dirname, '../frontend/index.html'), handleFileRead(res));
+    //     const browserSessionId = getSessionIdFromCookie(req); 
+
+    //     const filePath = browserSessionId ? '../frontend/index.html' : '../frontend/html/login.html'
+
+    //     fs.readFile(path.join(__dirname, filePath), handleFileRead(res));
 
 
-    }
+    // }
 
 
 
 
 //-------------serving login page-------------    
-    if(req.method === 'GET' && req.url === '/login') {
-        res.writeHead(200, {'Content-Type': 'text/html'});
+    // if(req.method === 'GET' && req.url === '/login') {
+    //     res.writeHead(200, {'Content-Type': 'text/html'});
 
-        fs.readFile(path.join(__dirname, '../frontend/html/login.html'), handleFileRead(res));  
-    }
+    //     fs.readFile(path.join(__dirname, '../frontend/html/login.html'), handleFileRead(res));  
+    // }
 
 
 
