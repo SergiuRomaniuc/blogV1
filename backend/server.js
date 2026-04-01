@@ -65,12 +65,16 @@ const server = http.createServer(async (req, res) => {
                 
                 if(match) {
                     
+
+                    //<<<<<<<<<<<<<<<< session management >>>>>>>>>>>>>>
+
                     await handleSessionCreation(user.iduser); //creating a session in the db
                     
                     
                     const sessionId = await findSessionIdByUserId(user.iduser); //send sessionID to the frontend to be stored in a cookie
                     res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/; HttpOnly; SameSite=Strict;`);
 
+                    //<<<<<<<<<<<<<<<<< end of session management >>>>>>>>>>>>>>
 
                     res.writeHead(200, {'Content-Type': 'application/json'}); //case when user exists and the password is correct
                     res.end(JSON.stringify({success: true, message: "Login successful."}));
@@ -122,14 +126,17 @@ const server = http.createServer(async (req, res) => {
                 await createUser(registerData.username, hash); //storing the new user in the db
 
 
-//TODO: add session management for the register endpoint!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+                //<<<<<<<<<<<<<<<< session management >>>>>>>>>>>>>>
+               
                 const user = await findUserByUsername(registerData.username); //finding the user {id, username, password} by the username provided in the frontend form
                 
                 await handleSessionCreation(user.iduser); // creating a session in the db for the new user
 
                 const sessionId = await findSessionIdByUserId(user.iduser); //send sessionID to the frontend to be stored in a cookie
                 res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/; HttpOnly; SameSite=Strict;`);
+               
+                //<<<<<<<<<<<<<<<<< end of session management >>>>>>>>>>>>>>
+
 
                 res.writeHead(200, {'Content-Type': 'application/json'}); //case when the user is successfully registered
                 res.end(JSON.stringify({success: true, message: "User registered successfully."}));
@@ -204,7 +211,11 @@ const server = http.createServer(async (req, res) => {
     if(req.method === 'GET' && req.url === '/signin') {
         res.writeHead(200, {'Content-Type': 'text/html'});
 
-        fs.readFile(path.join(__dirname, '../frontend/html/signin.html'), handleFileRead(res));
+        const browserSessionId = getSessionIdFromCookie(req); 
+
+        const filePath = browserSessionId ? '../frontend/index.html' : '../frontend/html/signin.html'
+
+        fs.readFile(path.join(__dirname, filePath), handleFileRead(res));
     }
 
     

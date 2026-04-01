@@ -103,3 +103,12 @@ function initRegisterUser() {
 
 initRegisterUser();
 
+
+
+
+async function logoutUser(event) {
+    event.preventDefault();
+
+    const response = await fetch('/api/loout', )
+}
+
