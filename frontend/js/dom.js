@@ -4,6 +4,7 @@
 export const inputValue = document.getElementById('blog-input');
 export const addBlogButton = document.getElementById('button-add-blog');
 export const logoutButton = document.getElementById('logout');
+export const blogContainer = document.getElementById('blog-posts-container');
 
 // -------------Log in page-------------
 

@@ -4,7 +4,7 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 
 
-const { findUserByUsername, createUser, findSessionIdByUserId, findUserBySessionId, deleteSession } = require('./database/db-queries.js');
+const { findUserByUsername, createUser, findSessionIdByUserId, findUserBySessionId, deleteSession, createBlogPost, getAllBlogPosts } = require('./database/db-queries.js');
 const { handleSessionCreation } = require('./session_management_utilities/session-Creation.js');
 const { handleFileRead } = require('./callback_functions/callback_for_readfile.js');
 const { getSessionIdFromCookie } = require('./modules/cookie_parser.js');
@@ -26,12 +26,17 @@ const server = http.createServer(async (req, res) => {
             body += chunk.toString();
         })
 
-        req.on('end', () => {
+        req.on('end', async () => {
 
             let blogData = JSON.parse(body);
 
-            res.writeHead(200, {'Content-Type': 'application/json'});
-            res.end(JSON.stringify({message: "POST request received and processed."}));
+            const browserSessionId = getSessionIdFromCookie(req);
+
+            await createBlogPost(blogData.blogText, browserSessionId);
+
+            res.writeHead(200, {'Content-Type': 'application/json'}); //case when user exists and the password is correct
+            res.end(JSON.stringify({success: true, message: "Blog post created successfully."}));
+            return;
         })
     }
 
@@ -73,9 +78,10 @@ const server = http.createServer(async (req, res) => {
                     
                     const sessionId = await findSessionIdByUserId(user.iduser); //send sessionID to the frontend to be stored in a cookie
                     res.setHeader('Set-Cookie', `sessionId=${sessionId}; Path=/; HttpOnly; SameSite=Strict;`);
-
+                    
                     //<<<<<<<<<<<<<<<<< end of session management >>>>>>>>>>>>>>
 
+                    
                     res.writeHead(200, {'Content-Type': 'application/json'}); //case when user exists and the password is correct
                     res.end(JSON.stringify({success: true, message: "Login successful."}));
                     return;
@@ -206,7 +212,25 @@ const server = http.createServer(async (req, res) => {
 
     }
 
-  
+    
+    if(req.method === 'GET' && req.url === '/api/blogs') {
+
+        const browserSessionId = getSessionIdFromCookie(req);
+
+        const user = await findUserBySessionId(browserSessionId);
+        if(!user) {
+            res.writeHead(401, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify({success: false, message: "Unauthorized."}));
+            return;
+        }
+
+        const blogPosts = await getAllBlogPosts(user.iduser);
+
+
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        res.end(JSON.stringify({success: true, blogPosts: blogPosts}));
+
+    }
 
  
 //-------------serving dashboard page-------------  

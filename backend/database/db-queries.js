@@ -100,7 +100,46 @@ async function createUser(username, password) {
 }
 
 
+async function createBlogPost(blogText, sessionId) {
+    let connection;
+    try {
+        const user = await findUserBySessionId(sessionId);
+        
+        if(!user) throw new Error("No user found");
 
+
+        connection = await mysql.createConnection(dbConfig);
+        const sql = 'insert into blog (text, userid) values (?, ?)';
+
+        await connection.query(sql, [blogText, user.iduser]);
+
+    } catch (error) {
+        console.error("Database error: ", error);
+        throw error;
+    } finally {
+        if(connection) connection.end();
+    }
+}
+
+async function getAllBlogPosts(iduser) {
+    let connection;
+    try {
+
+        connection = await mysql.createConnection(dbConfig);
+
+        const sql = 'select text from blog where userid=?;';
+
+        const result = await connection.query(sql, iduser);
+
+        return result[0].map(post => post.text);
+
+    } catch (error) {
+        console.error("Database error: ", error);
+        throw error;
+    } finally {
+        if(connection) connection.end();
+    }
+}
 
 module.exports = {
     findUserByUsername,
@@ -108,5 +147,7 @@ module.exports = {
     createUser,
     findSessionIdByUserId,
     findUserBySessionId,
-    deleteSession
+    deleteSession,
+    createBlogPost,
+    getAllBlogPosts
 }

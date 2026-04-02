@@ -1,5 +1,7 @@
 import * as dom from './dom.js';
 
+import loadNewContent from './modules/load_content.js';
+
 
 // -------------Create blog post-------------
 
@@ -15,7 +17,10 @@ async function createBlogPost(event) {
     });
 
     const result = await response.json();
-    console.log(result);
+    if(result.success) {
+        loadNewContent(dom.inputValue.value);
+        dom.inputValue.value = '';
+    }
 }
 
 function initCreateBlog() {
@@ -49,7 +54,7 @@ async function loginUser(event) {
     });
 
 
-    login.json().then(res => {
+    login.json().then(async res => {
         if(res.success) {
             window.location.href = '/dashboard';
         } else if(login.status === 401 || login.status === 500) {
