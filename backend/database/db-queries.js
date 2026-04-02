@@ -37,7 +37,7 @@ async function findUserBySessionId(sessionId) {
         if(connection) connection.end();
     }
 }
-
+ 
 async function findSessionIdByUserId(userId) {
     let connection; //finding the session ID for a specific user ID
     try {
