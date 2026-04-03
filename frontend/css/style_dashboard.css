@@ -1,0 +1,11 @@
+body {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    body {
+        width: 80%;
+        margin: 0 auto; 
+    }
+}
+

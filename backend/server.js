@@ -283,6 +283,13 @@ const server = http.createServer(async (req, res) => {
         fs.readFile(path.join(__dirname, '../frontend', req.url), handleFileRead(res));
     }
 
+
+    if(req.method === 'GET' && path.extname(req.url) === '.css') {
+        res.writeHead(200, {'Content-Type': 'text/css'});
+
+        fs.readFile(path.join(__dirname, '../frontend', req.url), handleFileRead(res));
+    }
+
 });
 
 

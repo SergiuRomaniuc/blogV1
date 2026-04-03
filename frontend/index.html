@@ -3,24 +3,30 @@
     <head></head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="./css/style_dashboard.css">
         <title>My Blog</title>
     </head>
     <body>
-        <button id="logout">Logout</button>
+        <nav class="navbar">
+            <button id="logout">Logout</button>
+        </nav>
 
-        <h1>Welcome to my blog!</h1>
+        <main id="main-content"> 
+            
+            <h1>Welcome to my blog!</h1>
+    
+    
+            <form id="blog-form">
+                <label for="blog-input">Enter your blog post:</label>
+                <input type="text" id="blog-input" name="blog-inputt" required>
+                <button type="submit" id="button-add-blog">Add Blog Post</button>
+            </form>
+            
+            <div id="blogs-container-container">
+                <div id="blog-posts-container"></div>
+            </div>
 
-        <a href="./html/login.html">Go to Login Page</a>
-
-        <form id="blog-form">
-            <label for="blog-input">Enter your blog post:</label>
-            <input type="text" id="blog-input" name="blog-inputt" required>
-            <button type="submit" id="button-add-blog">Add Blog Post</button>
-        </form>
-
-        <div id="blog-posts-container">
-
-        </div>
+        </main>
 
         <script type="module" src="js/main.js"></script>
         <script type="module" src="js/modules/index.js"></script>
